@@ -1,0 +1,140 @@
+---
+title: "Court_Data"
+output: html_document
+date: "2023-06-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r load data}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+fee <- read_csv("Input/website_merged.csv") %>% clean_names()
+```
+
+```{r counts}
+table <- fee %>% count(region, court)
+fee %>% count(law)
+vtl <- fee %>% 
+  filter(startsWith(law, "V"))
+
+table <- vtl %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(county, court, arresting_agency) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+
+table %>% write_csv("Output/table.csv")
+```
+
+```{r}
+
+byrace <- fee %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(race, county) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+
+byrace %>% write_csv("Output/byrace.csv")
+
+```
+
+```{r}
+overall <- fee %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(county) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+
+overall %>% write_csv("Output/overall.csv")
+```
+
+```{r}
+library(dplyr)
+
+# Read the data frames
+overall <- read.csv("Output/overall.csv")
+revenue <- read.csv("Output/County_Revenue_21.csv")
+
+# Join the data frames based on county name
+joined_data <- left_join(overall, revenue, by = "county")
+
+
+joined_data %>% write_csv("Output/overall.csv")
+
+```
+
+```{r}
+court <- fee %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(court) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+
+byrace %>% write_csv("Output/court.csv")
+```
+
+```{r}
+
+top_charge <- fee %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(top_charge_at_arraignment) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+
+top_charge %>% write_csv("Output/top_charge.csv")
+```
+```
+```{r}
+top_charge <- fee %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(top_charge_at_arraignment) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+```{r}
+
+```
+
+top_charge %>% write_csv("Output/top_charge.csv")
+```
+```{r}
+top_charge <- fee %>% 
+  mutate_at(vars(contains("_imposed")), ~replace_na(.,0)) %>%
+  group_by(top_charge_at_arraignment) %>%
+  summarise(n_charges = n(),
+            fines = sum(fines_imposed),
+            fees = sum(fees_imposed),
+            surcharges = sum(surcharges_imposed)) %>%
+  mutate(total = fines + fees + surcharges) %>%
+  mutate_if(is.numeric,~round(.,0))
+
+top_charge %>% write_csv("Output/top_charge.csv")
+```
